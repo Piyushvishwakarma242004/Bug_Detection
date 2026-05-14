@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Bug Prediction Dashboard</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-bug"></i>
+                    <h1>Real-Time Bug Prediction Dashboard</h1>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="totalModules">0</span>
+                        <span class="stat-label">Total Modules</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="highRiskCount">0</span>
+                        <span class="stat-label">High Risk</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="systemHealth">95%</span>
+                        <span class="stat-label">System Health</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard-main">
+            <!-- Top Row - Key Metrics -->
+            <section class="metrics-row">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3>Real-Time Predictions</h3>
+                        <span class="metric-badge live">
+                            <i class="fas fa-circle"></i> LIVE
+                        </span>
+                    </div>
+                    <div class="metric-value">
+                        <span id="predictionCount">0</span>
+                        <small>predictions/min</small>
+                    </div>
+                    <div class="metric-change positive">
+                        <i class="fas fa-arrow-up"></i> +12% from last hour
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3>Accuracy Rate</h3>
+                        <i class="fas fa-bullseye metric-icon"></i>
+                    </div>
+                    <div class="metric-value">
+                        <span id="accuracyRate">87.3</span>
+                        <small>%</small>
+                    </div>
+                    <div class="metric-change positive">
+                        <i class="fas fa-arrow-up"></i> +2.1% improvement
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3>Active Alerts</h3>
+                        <i class="fas fa-exclamation-triangle metric-icon alert"></i>
+                    </div>
+                    <div class="metric-value">
+                        <span id="activeAlerts">3</span>
+                        <small>critical</small>
+                    </div>
+                    <div class="metric-change negative">
+                        <i class="fas fa-arrow-up"></i> 2 new alerts
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <h3>Model Performance</h3>
+                        <i class="fas fa-chart-line metric-icon"></i>
+                    </div>
+                    <div class="metric-value">
+                        <span id="modelPerformance">92.1</span>
+                        <small>score</small>
+                    </div>
+                    <div class="metric-change positive">
+                        <i class="fas fa-arrow-up"></i> Optimal
+                    </div>
+                </div>
+            </section>
+
+            <!-- Middle Row - Charts -->
+            <section class="charts-row">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Real-Time Bug Predictions</h3>
+                        <div class="chart-controls">
+                            <button class="chart-btn active" onclick="updateTimeRange('1h')">1H</button>
+                            <button class="chart-btn" onclick="updateTimeRange('24h')">24H</button>
+                            <button class="chart-btn" onclick="updateTimeRange('7d')">7D</button>
+                        </div>
+                    </div>
+                    <canvas id="realtimeChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Risk Distribution</h3>
+                        <div class="legend">
+                            <span class="legend-item high">High Risk</span>
+                            <span class="legend-item medium">Medium Risk</                            </span>
+                            <span class="legend-item low">Low Risk</span>
+                        </div>
+                    </div>
+                    <canvas id="riskChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Bottom Row - Activity Feed & Alerts -->
+            <section class="bottom-row">
+                <div class="activity-feed">
+                    <div class="feed-header">
+                        <h3>Real-Time Activity Feed</h3>
+                        <button class="refresh-btn" onclick="refreshFeed()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="feed-content" id="activityFeed">
+                        <!-- Activity items will be added dynamically -->
+                    </div>
+                </div>
+
+                <div class="alerts-panel">
+                    <div class="alerts-header">
+                        <h3>Active Alerts</h3>
+                        <span class="alert-count" id="alertCount">3</span>
+                    </div>
+                    <div class="alerts-content" id="alertsContent">
+                        <!-- Alerts will be added dynamically -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Module Details Table -->
+            <section class="module-details">
+                <div class="table-header">
+                    <h3>Module Risk Analysis</h3>
+                    <div class="table-controls">
+                        <input type="text" placeholder="Search modules..." id="searchInput" onkeyup="filterModules()">
+                        <select id="riskFilter" onchange="filterModules()">
+                            <option value="all">All Risk Levels</option>
+                            <option value="high">High Risk</option>
+                            <option value="medium">Medium Risk</option>
+                            <option value="low">Low Risk</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table id="modulesTable">
+                        <thead>
+                            <tr>
+                                <th>Module Name</th>
+                                <th>Risk Level</th>
+                                <th>Risk Score</th>
+                                <th>Predicted Bugs</th>
+                                <th>Complexity</th>
+                                <th>Last Updated</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modulesTableBody">
+                            <!-- Table rows will be added dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Alert Modal -->
+    <div class="modal" id="alertModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Alert Details</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Alert details will be added dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="takeAction()">Take Action</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Dismiss</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <script src="dashboard-script.js"></script>
+</body>
+</html>

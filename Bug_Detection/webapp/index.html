@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug Prediction System - Web Interface</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="title">
+                    <i class="fas fa-bug"></i>
+                    Bug Prediction System
+                </h1>
+                <p class="subtitle">Machine Learning for Software Quality Assurance</p>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tabs">
+            <button class="tab-btn active" onclick="showTab('dataset')">
+                <i class="fas fa-database"></i> Dataset
+            </button>
+            <button class="tab-btn" onclick="showTab('training')">
+                <i class="fas fa-cogs"></i> Training
+            </button>
+            <button class="tab-btn" onclick="showTab('prediction')">
+                <i class="fas fa-chart-line"></i> Prediction
+            </button>
+            <button class="tab-btn" onclick="showTab('evaluation')">
+                <i class="fas fa-analytics"></i> Evaluation
+            </button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Dataset Tab -->
+            <section id="dataset-tab" class="tab-content active">
+                <div class="card">
+                    <h2><i class="fas fa-upload"></i> Dataset Management</h2>
+                    
+                    <div class="upload-section">
+                        <div class="upload-area" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Drop CSV file here or click to browse</p>
+                            <input type="file" id="fileInput" accept=".csv" style="display: none;">
+                        </div>
+                        
+                        <div class="upload-controls">
+                            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                                <i class="fas fa-folder-open"></i> Choose File
+                            </button>
+                            <button class="btn btn-secondary" onclick="loadDefaultDataset()">
+                                <i class="fas fa-database"></i> Load Default Dataset
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="dataset-info" id="datasetInfo" style="display: none;">
+                        <h3>Dataset Information</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Total Modules:</label>
+                                <span id="totalModules">0</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Training Modules:</label>
+                                <span id="trainingModules">0</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Test Modules:</label>
+                                <span id="testModules">0</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Buggy Modules:</label>
+                                <span id="buggyModules">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container" id="datasetTableContainer" style="display: none;">
+                        <h3>Dataset Preview</h3>
+                        <div class="table-wrapper">
+                            <table id="datasetTable" class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Module Name</th>
+                                        <th>LOC</th>
+                                        <th>Complexity</th>
+                                        <th>Changes</th>
+                                        <th>Bug Fixes</th>
+                                        <th>Code Churn</th>
+                                        <th>Authors</th>
+                                        <th>Is Buggy</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="datasetTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Training Tab -->
+            <section id="training-tab" class="tab-content">
+                <div class="card">
+                    <h2><i class="fas fa-cogs"></i> Model Training</h2>
+                    
+                    <div class="training-controls">
+                        <div class="form-group">
+                            <label for="algorithmSelect">Select Algorithm:</label>
+                            <select id="algorithmSelect" class="form-control">
+                                <option value="naive_bayes">Naive Bayes</option>
+                                <option value="decision_tree">Decision Tree (J48)</option>
+                                <option value="logistic_regression">Logistic Regression</option>
+                                <option value="random_forest">Random Forest</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="trainModel()" id="trainBtn">
+                            <i class="fas fa-play"></i> Train Model
+                        </button>
+                    </div>
+
+                    <div class="training-status" id="trainingStatus" style="display: none;">
+                        <h3>Training Progress</h3>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="progressBar"></div>
+                            <span id="progressText">0%</span>
+                        </div>
+                        <div class="training-log" id="trainingLog"></div>
+                    </div>
+
+                    <div class="model-info" id="modelInfo" style="display: none;">
+                        <h3>Model Information</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Algorithm:</label>
+                                <span id="modelAlgorithm">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Training Accuracy:</label>
+                                <span id="trainingAccuracy">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Training Precision:</label>
+                                <span id="trainingPrecision">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Training Recall:</label>
+                                <span id="trainingRecall">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Prediction Tab -->
+            <section id="prediction-tab" class="tab-content">
+                <div class="card">
+                    <h2><i class="fas fa-chart-line"></i> Bug Prediction</h2>
+                    
+                    <div class="prediction-controls">
+                        <button class="btn btn-primary" onclick="predictAllModules()" id="predictAllBtn">
+                            <i class="fas fa-users"></i> Predict All Test Modules
+                        </button>
+                        <button class="btn btn-secondary" onclick="showCustomPrediction()">
+                            <i class="fas fa-plus"></i> Predict Custom Module
+                        </button>
+                    </div>
+
+                    <div class="custom-prediction" id="customPrediction" style="display: none;">
+                        <h3>Custom Module Prediction</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="moduleName">Module Name:</label>
+                                <input type="text" id="moduleName" class="form-control" placeholder="e.g., NewPaymentGateway">
+                            </div>
+                            <div class="form-group">
+                                <label for="loc">Lines of Code:</label>
+                                <input type="number" id="loc" class="form-control" placeholder="e.g., 350">
+                            </div>
+                            <div class="form-group">
+                                <label for="complexity">Cyclomatic Complexity:</label>
+                                <input type="number" id="complexity" class="form-control" placeholder="e.g., 28">
+                            </div>
+                            <div class="form-group">
+                                <label for="changes">Number of Changes:</label>
+                                <input type="number" id="changes" class="form-control" placeholder="e.g., 18">
+                            </div>
+                            <div class="form-group">
+                                <label for="bugFixes">Bug Fixes:</label>
+                                <input type="number" id="bugFixes" class="form-control" placeholder="e.g., 10">
+                            </div>
+                            <div class="form-group">
+                                <label for="codeChurn">Code Churn:</label>
+                                <input type="number" id="codeChurn" class="form-control" placeholder="e.g., 980">
+                            </div>
+                            <div class="form-group">
+                                <label for="authors">Author Count:</label>
+                                <input type="number" id="authors" class="form-control" placeholder="e.g., 5">
+                            </div>
+                            <button class="btn btn-success" onclick="predictCustomModule()">
+                                <i class="fas fa-search"></i> Predict
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="results-container" id="resultsContainer" style="display: none;">
+                        <h3>Prediction Results</h3>
+                        <div class="table-wrapper">
+                            <table id="resultsTable" class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Module Name</th>
+                                        <th>Actual Status</th>
+                                        <th>Predicted Status</th>
+                                        <th>Risk Probability</th>
+                                        <th>Risk Level</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultsTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Evaluation Tab -->
+            <section id="evaluation-tab" class="tab-content">
+                <div class="card">
+                    <h2><i class="fas fa-analytics"></i> Model Evaluation</h2>
+                    
+                    <div class="evaluation-controls">
+                        <button class="btn btn-primary" onclick="evaluateModel()" id="evaluateBtn">
+                            <i class="fas fa-chart-bar"></i> Evaluate Model
+                        </button>
+                    </div>
+
+                    <div class="metrics-container" id="metricsContainer" style="display: none;">
+                        <h3>Performance Metrics</h3>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-icon">
+                                    <i class="fas fa-bullseye"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <h4>Accuracy</h4>
+                                    <span class="metric-value" id="accuracyValue">-</span>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-icon">
+                                    <i class="fas fa-crosshairs"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <h4>Precision</h4>
+                                    <span class="metric-value" id="precisionValue">-</span>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-icon">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <h4>Recall</h4>
+                                    <span class="metric-value" id="recallValue">-</span>
+                                </div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-icon">
+                                    <i class="fas fa-balance-scale"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <h4>F1-Score</h4>
+                                    <span class="metric-value" id="f1ScoreValue">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="evaluation-log" id="evaluationLog" style="display: none;">
+                        <h3>Evaluation Details</h3>
+                        <div class="log-content" id="evaluationLogContent"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 Bug Prediction System - Machine Learning for Software Quality</p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Processing...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
